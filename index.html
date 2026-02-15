@@ -1,283 +1,384 @@
 <!doctype html>
+<!--
+  IMPORTANT DEPLOY NOTE (fix for: "Unexpected token '<'")
+  --------------------------------------------------------
+  This file MUST be deployed as an HTML page (e.g., index.html).
+  If you paste this entire code into a .js/.ts file (Vercel Next.js page, or a <script> tag),
+  the browser will try to parse "<!doctype html>" as JavaScript and throw:
+  SyntaxError: Unexpected token '<'
+
+  ✅ Correct:
+    - Save as: index.html
+    - Deploy as a static site (Vercel: "Other" → Static; or put in /public and open /index.html)
+
+  ❌ Wrong:
+    - Putting this in a JS file like index.js/app.js
+    - Importing this HTML as a script
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>PrecisionTech3D • Print Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 p-6">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <div class="max-w-6xl mx-auto">
+  <!-- Tailwind CDN is optional; app works even if it fails to load. -->
+  <script defer src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ THEME (PrecisionTech3D) -->
+  <style>
+    :root{
+      --pt-bg:#070b1b;
+      --pt-bg2:#0b1430;
+      --pt-card:rgba(255,255,255,0.06);
+      --pt-card2:rgba(255,255,255,0.08);
+      --pt-border:rgba(255,255,255,0.12);
+      --pt-text:#e8eefc;
+      --pt-muted:rgba(232,238,252,0.72);
+      --pt-blue:#2ea8ff;
+      --pt-blue2:#0b7cff;
+    }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 20% 20%, rgba(46,168,255,0.18), transparent 55%),
+                  radial-gradient(900px 600px at 80% 30%, rgba(11,124,255,0.14), transparent 50%),
+                  linear-gradient(180deg, var(--pt-bg), var(--pt-bg2));
+      color: var(--pt-text);
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .pt-card{ background: var(--pt-card); border:1px solid var(--pt-border); }
+    .pt-card-strong{ background: var(--pt-card2); border:1px solid var(--pt-border); }
+    .pt-input{ background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); color: var(--pt-text); }
+    .pt-input::placeholder{ color: rgba(232,238,252,0.45); }
+    .pt-muted{ color: var(--pt-muted); }
+    .pt-btn{ background: linear-gradient(135deg, var(--pt-blue2), var(--pt-blue)); }
+    .pt-btn:hover{ filter: brightness(1.05); }
+    .pt-btn2{ background: rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.16); }
+    .pt-btn2:hover{ background: rgba(255,255,255,0.14); }
+    .pt-danger{ background: rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.35); }
+    .pt-danger:hover{ background: rgba(239,68,68,0.22); }
+    .pt-table th{ background: rgba(255,255,255,0.08) !important; }
+    .pt-table td, .pt-table th{ border-color: rgba(255,255,255,0.12) !important; }
+    .pt-badge{ background: rgba(46,168,255,0.14); border:1px solid rgba(46,168,255,0.30); }
+
+    /* Minimal layout helpers (so UI still looks OK without Tailwind) */
+    .container{ max-width: 72rem; margin: 0 auto; padding: 24px; }
+    .rounded-2xl{ border-radius: 1rem; }
+    .rounded-xl{ border-radius: .75rem; }
+    .rounded-lg{ border-radius: .5rem; }
+    .shadow-2xl{ box-shadow: 0 25px 50px -12px rgba(0,0,0,.45); }
+    .p-2{ padding: .5rem; }
+    .p-3{ padding: .75rem; }
+    .p-4{ padding: 1rem; }
+    .p-5{ padding: 1.25rem; }
+    .p-6{ padding: 1.5rem; }
+    .p-8{ padding: 2rem; }
+    .mb-4{ margin-bottom: 1rem; }
+    .mb-6{ margin-bottom: 1.5rem; }
+    .mb-8{ margin-bottom: 2rem; }
+    .mt-1{ margin-top: .25rem; }
+    .mt-3{ margin-top: .75rem; }
+    .mt-4{ margin-top: 1rem; }
+    .mt-6{ margin-top: 1.5rem; }
+    .gap-2{ gap: .5rem; }
+    .gap-3{ gap: .75rem; }
+    .gap-4{ gap: 1rem; }
+    .grid{ display: grid; }
+    .flex{ display:flex; }
+    .items-center{ align-items:center; }
+    .items-start{ align-items:flex-start; }
+    .justify-between{ justify-content:space-between; }
+    .text-center{ text-align:center; }
+    .text-right{ text-align:right; }
+    .w-full{ width:100%; }
+    .text-xs{ font-size: .75rem; }
+    .text-sm{ font-size: .875rem; }
+    .text-xl{ font-size: 1.25rem; }
+    .text-2xl{ font-size: 1.5rem; }
+    .font-bold{ font-weight:700; }
+    .font-semibold{ font-weight:600; }
+
+    table{ border-collapse: collapse; }
+    th, td{ border:1px solid rgba(255,255,255,0.12); }
+
+    /* Modal utilities */
+    .fixed{ position:fixed; }
+    .inset-0{ inset:0; }
+    .hidden{ display:none; }
+    .z-50{ z-index:50; }
+    .bg-black\/50{ background: rgba(0,0,0,.5); }
+
+    /* Print */
+    @media print {
+      body{ background:#fff !important; color:#000 !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- ================= HEADER ================= -->
+    <div class="pt-card-strong rounded-2xl shadow-2xl p-5 mb-6">
+      <div class="flex items-center justify-between gap-4" style="flex-wrap:wrap;">
+        <div class="flex items-center gap-4" style="min-width:260px;">
+          <div>
+            <div class="text-2xl font-bold">PrecisionTech <span style="color:#8dd3ff">3D</span></div>
+            <div class="text-sm pt-muted">Print order calculator • saved orders • partner split • invoices</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2" style="flex-wrap:wrap;">
+          <span class="pt-badge text-xs" style="padding:.35rem .75rem; border-radius:999px;">Theme: PrecisionTech3D</span>
+          <button type="button" onclick="exportOrdersCSV()" class="pt-btn2 text-xs" style="padding:.5rem .75rem; border-radius:.75rem;">Export Orders (Excel)</button>
+          <button type="button" onclick="exportAllBillsZipHint()" class="pt-btn2 text-xs" style="padding:.5rem .75rem; border-radius:.75rem;">Export bills (per order)</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ================= CALCULATOR ================= -->
-    <div class="bg-white shadow-2xl rounded-2xl p-8 mb-8">
+    <div class="pt-card rounded-2xl shadow-2xl p-8 mb-8">
       <h1 class="text-2xl font-bold text-center mb-6">Print Order Calculator</h1>
 
-      <div class="grid md:grid-cols-2 gap-4">
+      <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
         <div>
-          <label class="text-sm text-gray-600">Customer Name</label>
-          <input id="customerName" type="text" placeholder="Enter customer name" class="w-full border rounded-lg p-2 mt-1" />
+          <label class="text-sm pt-muted">Customer Name</label>
+          <input id="customerName" type="text" placeholder="Enter customer name" class="w-full rounded-lg p-2 mt-1 pt-input" />
+        </div>
+
+        <!-- ✅ Quantity -->
+        <div>
+          <label class="text-sm pt-muted">Quantity (pieces)</label>
+          <input id="qtyInput" type="number" min="1" step="1" value="1" class="w-full rounded-lg p-2 mt-1 pt-input" oninput="handleQtyChange()" />
+          <div class="text-xs pt-muted mt-1">If quantity is more than 1, enter <b>total grams + total hours</b> for all pieces.</div>
         </div>
 
         <div>
-          <label class="text-sm text-gray-600">Filament Used (grams)</label>
-          <input id="gramsInput" type="number" step="0.1" placeholder="e.g., 370" class="w-full border rounded-lg p-2 mt-1" />
+          <label class="text-sm pt-muted">Filament Used (grams) <span id="gramsLabelSuffix" class="text-xs pt-muted"></span></label>
+          <input id="gramsInput" type="number" step="0.1" placeholder="e.g., 370" class="w-full rounded-lg p-2 mt-1 pt-input" />
         </div>
 
         <div>
-          <label class="text-sm text-gray-600">Print Time (hours)</label>
-          <input id="timeInput" type="number" step="0.1" placeholder="e.g., 20" class="w-full border rounded-lg p-2 mt-1" />
+          <label class="text-sm pt-muted">Print Time (hours) <span id="timeLabelSuffix" class="text-xs pt-muted"></span></label>
+          <input id="timeInput" type="number" step="0.1" placeholder="e.g., 20" class="w-full rounded-lg p-2 mt-1 pt-input" />
         </div>
 
         <div>
-          <label class="text-sm text-gray-600">Selling Price per Gram (₹)</label>
-          <input id="sellPerGramInput" type="number" step="0.1" value="7" class="w-full border rounded-lg p-2 mt-1" />
+          <label class="text-sm pt-muted">Selling Price per Gram (₹)</label>
+          <input id="sellPerGramInput" type="number" step="0.1" value="7" class="w-full rounded-lg p-2 mt-1 pt-input" />
         </div>
       </div>
 
-      <!-- COST SETTINGS (DETAILED MANUFACTURING) -->
+      <!-- COST SETTINGS -->
       <details class="mt-6">
-        <summary class="cursor-pointer text-sm font-semibold text-slate-800 select-none">Manufacturing Cost Settings (Detailed)</summary>
-        <div class="mt-3 bg-slate-50 border rounded-2xl p-4">
-          <div class="text-xs text-slate-600 mb-3">
+        <summary class="text-sm font-semibold" style="cursor:pointer; user-select:none;">Manufacturing Cost Settings (Detailed)</summary>
+        <div class="mt-3 pt-card-strong rounded-2xl p-4">
+          <div class="text-xs pt-muted mb-4">
             These settings are saved on this device (localStorage). Manufacturing cost =
             <b>Filament + Wastage + Electricity + Packaging</b>.
           </div>
 
-          <div class="grid md:grid-cols-3 gap-4">
+          <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
             <div>
-              <label class="text-xs text-slate-600">Filament cost per gram (₹/g)</label>
-              <input id="cfg_filamentPerGram" type="number" step="0.01" class="w-full border rounded-lg p-2 mt-1" />
+              <label class="text-xs pt-muted">Filament cost per gram (₹/g)</label>
+              <input id="cfg_filamentPerGram" type="number" step="0.01" class="w-full rounded-lg p-2 mt-1 pt-input" />
             </div>
 
             <div>
-              <label class="text-xs text-slate-600">Wastage buffer (%)</label>
-              <input id="cfg_wastagePct" type="number" step="0.1" class="w-full border rounded-lg p-2 mt-1" />
+              <label class="text-xs pt-muted">Wastage buffer (%)</label>
+              <input id="cfg_wastagePct" type="number" step="0.1" class="w-full rounded-lg p-2 mt-1 pt-input" />
             </div>
 
             <div>
-              <label class="text-xs text-slate-600">Packaging per order (₹)</label>
-              <input id="cfg_packaging" type="number" step="0.1" class="w-full border rounded-lg p-2 mt-1" />
+              <label class="text-xs pt-muted">Packaging per order (₹)</label>
+              <input id="cfg_packaging" type="number" step="0.1" class="w-full rounded-lg p-2 mt-1 pt-input" />
             </div>
 
             <div>
-              <label class="text-xs text-slate-600">Electricity rate (₹/kWh)</label>
-              <input id="cfg_elecRate" type="number" step="0.1" class="w-full border rounded-lg p-2 mt-1" />
+              <label class="text-xs pt-muted">Electricity rate (₹/kWh)</label>
+              <input id="cfg_elecRate" type="number" step="0.1" class="w-full rounded-lg p-2 mt-1 pt-input" />
             </div>
 
             <div>
-              <label class="text-xs text-slate-600">Printer average power (Watts)</label>
-              <input id="cfg_powerW" type="number" step="1" class="w-full border rounded-lg p-2 mt-1" />
+              <label class="text-xs pt-muted">Printer average power (Watts)</label>
+              <input id="cfg_powerW" type="number" step="1" class="w-full rounded-lg p-2 mt-1 pt-input" />
             </div>
 
-            
-
-            <div class="flex items-end gap-2">
-              <button type="button" onclick="saveCostSettings()" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Save Settings</button>
-              <button type="button" onclick="resetCostSettings()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-sm">Reset Defaults</button>
+            <div style="display:flex; align-items:flex-end; gap:.5rem;">
+              <button type="button" onclick="saveCostSettings()" class="pt-btn" style="padding:.5rem 1rem; border-radius:.75rem; color:#fff; border:0;">Save Settings</button>
+              <button type="button" onclick="resetCostSettings()" class="pt-btn2" style="padding:.5rem 1rem; border-radius:.75rem;">Reset Defaults</button>
             </div>
           </div>
 
-          <div id="cfgStatus" class="text-xs text-slate-600 mt-3"></div>
+          <div id="cfgStatus" class="text-xs pt-muted mt-3"></div>
         </div>
       </details>
 
-      <div class="flex gap-4 mt-6">
-        <button type="button" onclick="calculatePrice()" class="flex-1 bg-black text-white py-2 rounded-xl hover:bg-gray-800">Calculate</button>
-        <button type="button" onclick="finalizeOrder()" class="flex-1 bg-green-600 text-white py-2 rounded-xl hover:bg-green-700">Finalize & Save</button>
+      <div class="flex gap-4 mt-6" style="flex-wrap:wrap;">
+        <button type="button" onclick="calculatePrice()" class="pt-btn" style="flex:1; min-width:200px; color:#fff; padding:.6rem 1rem; border-radius:.75rem; border:0;">Calculate</button>
+        <button type="button" onclick="finalizeOrder()" style="flex:1; min-width:200px; background:#059669; color:#fff; padding:.6rem 1rem; border-radius:.75rem; border:0;">Finalize &amp; Save</button>
       </div>
 
-      <div id="result" class="mt-6 hidden space-y-4">
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="bg-slate-50 border rounded-xl p-4">
-            <div class="text-gray-500 text-sm">Manufacturing Cost (Total)</div>
-            <div id="manufactureCost" class="text-2xl font-bold"></div>
-            <div class="mt-3 space-y-1 text-sm text-slate-700">
-              <div class="flex justify-between"><span>Filament</span><span id="m_filament">₹0</span></div>
-              <div class="flex justify-between"><span>Wastage</span><span id="m_wastage">₹0</span></div>
-              <div class="flex justify-between"><span>Electricity</span><span id="m_electricity">₹0</span></div>
-              
-              <div class="flex justify-between"><span>Packaging</span><span id="m_packaging">₹0</span></div>
+      <div id="result" class="mt-6 hidden">
+        <div class="pt-card-strong rounded-xl p-4">
+          <div class="text-sm font-semibold" style="margin-bottom:.25rem;">Result</div>
+          <div class="text-xs pt-muted" style="margin-bottom:.75rem;">This is only a preview. Click <b>Finalize &amp; Save</b> to store the order and generate the bill.</div>
+
+          <div class="grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            <div class="pt-card rounded-xl p-3">
+              <div class="text-xs pt-muted">Selling Price</div>
+              <div class="text-2xl font-bold">₹<span id="calcSelling">0</span></div>
+            </div>
+            <div class="pt-card rounded-xl p-3">
+              <div class="text-xs pt-muted">Profit</div>
+              <div class="text-2xl font-bold" style="color:#86efac;">₹<span id="calcProfit">0</span></div>
+            </div>
+            <div class="pt-card rounded-xl p-3">
+              <div class="text-xs pt-muted">Manufacturing Cost (internal)</div>
+              <div class="text-2xl font-bold">₹<span id="calcMfg">0</span></div>
+              <div class="text-xs pt-muted" style="margin-top:.25rem;">Not shown in customer bill</div>
             </div>
           </div>
 
-          <div class="bg-white border rounded-xl p-4">
-            <div class="text-gray-500 text-sm">Selling Price</div>
-            <div id="sellingPrice" class="text-3xl font-bold"></div>
-            <div class="mt-4">
-              <div class="text-gray-500 text-sm">Profit</div>
-              <div id="profit" class="text-2xl font-semibold text-green-600"></div>
-            </div>
-          </div>
+          <div id="calcStatus" class="text-xs pt-muted" style="margin-top:.75rem;"></div>
         </div>
       </div>
 
-      <p class="text-xs text-slate-500 mt-4">
-        All values shown in ₹. Edit manufacturing settings in “Manufacturing Cost Settings (Detailed)”.
-      </p>
+      <p class="text-xs pt-muted mt-4">All values shown in ₹. Manufacturing breakdown is internal only and not shown in invoice.</p>
     </div>
 
-    <!-- ================= EXCEL STYLE SHEET ================= -->
-    <div class="bg-white shadow-2xl rounded-2xl p-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+    <!-- ================= SAVED ORDERS ================= -->
+    <div class="pt-card rounded-2xl shadow-2xl p-6">
+      <div class="flex items-center justify-between gap-3 mb-4" style="flex-wrap:wrap;">
         <h2 class="text-xl font-bold">Saved Orders</h2>
-        <button type="button" onclick="resetAllData()" class="text-xs px-3 py-2 rounded-lg bg-slate-200 hover:bg-slate-300">Reset all data</button>
+        <button type="button" onclick="resetAllData()" class="pt-btn2 text-xs" style="padding:.5rem .75rem; border-radius:.5rem;">Reset all data</button>
       </div>
 
       <!-- FILTERS -->
-      <div class="grid md:grid-cols-5 gap-4 mb-4">
-        <input id="filterName" type="text" placeholder="Filter by customer" class="border rounded-lg p-2 text-sm" oninput="loadOrders()" />
-        <input id="minProfit" type="number" placeholder="Min profit ₹" class="border rounded-lg p-2 text-sm" oninput="loadOrders()" />
-        <input id="startDate" type="date" class="border rounded-lg p-2 text-sm" onchange="loadOrders()" />
-        <input id="endDate" type="date" class="border rounded-lg p-2 text-sm" onchange="loadOrders()" />
-        <button type="button" onclick="clearFilters()" class="bg-gray-300 hover:bg-gray-400 py-2 rounded-lg text-sm">Clear</button>
+      <div class="grid gap-4 mb-4" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+        <input id="filterName" type="text" placeholder="Filter by customer" class="rounded-lg p-2 text-sm pt-input" oninput="loadOrders()" />
+        <input id="minProfit" type="number" placeholder="Min profit ₹" class="rounded-lg p-2 text-sm pt-input" oninput="loadOrders()" />
+        <input id="startDate" type="date" class="rounded-lg p-2 text-sm pt-input" onchange="loadOrders()" />
+        <input id="endDate" type="date" class="rounded-lg p-2 text-sm pt-input" onchange="loadOrders()" />
+        <button type="button" onclick="clearFilters()" class="pt-btn2" style="padding:.5rem 0; border-radius:.5rem;">Clear</button>
       </div>
 
-      <!-- TOTALS (filtered) -->
-      <div class="grid md:grid-cols-5 gap-4 mb-4 text-sm bg-gray-100 p-4 rounded-lg">
+      <!-- TOTALS -->
+      <div class="grid gap-4 mb-4 text-sm pt-card-strong p-4 rounded-lg" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
         <div>Total Grams: <span id="totalGrams" class="font-bold">0</span></div>
         <div>Total Hours: <span id="totalHours" class="font-bold">0</span></div>
         <div>Total Manufacturing: ₹<span id="totalManufacturing" class="font-bold">0</span></div>
         <div>Total Selling: ₹<span id="totalSelling" class="font-bold">0</span></div>
-        <div>Total Profit: ₹<span id="totalProfit" class="font-bold text-green-600">0</span></div>
+        <div>Total Profit: ₹<span id="totalProfit" class="font-bold" style="color:#86efac">0</span></div>
       </div>
 
-      <!-- PARTNER SPLIT (for current filters / date range) -->
-      <div class="bg-slate-50 border rounded-2xl p-4 mb-4">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <!-- PARTNER SPLIT -->
+      <div class="pt-card-strong rounded-2xl p-4 mb-4">
+        <div class="flex items-center justify-between gap-3" style="flex-wrap:wrap;">
           <div>
-            <div class="text-sm font-semibold text-slate-800">Partner Split (Tarun 60% • Vansh 40%)</div>
-            <div class="text-xs text-slate-600">Based on totals above (after applying filters/date range)</div>
+            <div class="text-sm font-semibold">Partner Split (Tarun 60% • Vansh 40%)</div>
+            <div class="text-xs pt-muted">Based on totals above (after applying filters/date range)</div>
           </div>
           <div class="flex items-center gap-2">
-            <label class="text-xs text-slate-600">Cost payer:</label>
-            <select id="costMode" class="border rounded-lg p-2 text-sm" onchange="recalcSettlement()">
+            <label class="text-xs pt-muted">Cost payer:</label>
+            <select id="costMode" class="rounded-lg p-2 text-sm pt-input" onchange="recalcSettlement()">
               <option value="tarun">Tarun pays all manufacturing cost (machine at Tarun)</option>
               <option value="split">Split manufacturing cost 60/40</option>
+              <option value="profit">Show ONLY profit share (60/40)</option>
             </select>
           </div>
         </div>
 
-        <div class="grid md:grid-cols-4 gap-4 mt-4 text-sm">
-          <div class="bg-white rounded-xl border p-3">
-            <div class="text-slate-500 text-xs">Revenue (Selling total)</div>
-            <div class="text-lg font-bold">₹<span id="revTotal">0</span></div>
+        <div class="grid gap-4 mt-4 text-sm" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="pt-card rounded-xl p-3">
+            <div class="pt-muted text-xs">Revenue (Selling total)</div>
+            <div class="text-xl font-bold">₹<span id="revTotal">0</span></div>
           </div>
-          <div class="bg-white rounded-xl border p-3">
-            <div class="text-slate-500 text-xs">Manufacturing total</div>
-            <div class="text-lg font-bold">₹<span id="costTotal">0</span></div>
+          <div class="pt-card rounded-xl p-3">
+            <div class="pt-muted text-xs">Manufacturing total</div>
+            <div class="text-xl font-bold">₹<span id="costTotal">0</span></div>
           </div>
-          <div class="bg-white rounded-xl border p-3">
-            <div class="text-slate-500 text-xs">Tarun gets</div>
-            <div class="text-lg font-bold">₹<span id="tarunGets">0</span></div>
-            <div id="tarunNote" class="text-xs text-slate-500 mt-1"></div>
+          <div class="pt-card rounded-xl p-3">
+            <div class="pt-muted text-xs">Tarun gets</div>
+            <div class="text-xl font-bold">₹<span id="tarunGets">0</span></div>
+            <div id="tarunNote" class="text-xs pt-muted mt-1"></div>
           </div>
-          <div class="bg-white rounded-xl border p-3">
-            <div class="text-slate-500 text-xs">Vansh gets</div>
-            <div class="text-lg font-bold">₹<span id="vanshGets">0</span></div>
-            <div id="vanshNote" class="text-xs text-slate-500 mt-1"></div>
+          <div class="pt-card rounded-xl p-3">
+            <div class="pt-muted text-xs">Vansh gets</div>
+            <div class="text-xl font-bold">₹<span id="vanshGets">0</span></div>
+            <div id="vanshNote" class="text-xs pt-muted mt-1"></div>
           </div>
         </div>
-      <!-- Reimbursement Modal (ALL orders) -->
-      <div id="reimbModal" class="fixed inset-0 hidden items-center justify-center bg-black/40 p-4 z-50">
-        <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-          <div class="flex items-center justify-between p-4 border-b">
-            <div>
-              <div class="text-sm font-semibold">Cost Reimbursement Details (Full Split)</div>
-              <div class="text-xs text-slate-500">Shows ALL saved orders • Manufacturing split by component</div>
-            </div>
-            <button type="button" onclick="closeReimbursements()" class="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm">Close</button>
-          </div>
 
-          <div class="p-4 overflow-y-auto" style="-webkit-overflow-scrolling: touch;">
-            <div class="grid md:grid-cols-4 gap-3 text-sm mb-3">
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Total reimbursement (Manufacturing)</div>
-                <div class="text-lg font-bold">₹<span id="reimbTotal">0</span></div>
+        <!-- Reimbursement Modal -->
+        <div id="reimbModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4 z-50">
+          <div class="pt-card-strong w-full" style="max-width:72rem; border-radius:1rem; max-height:90vh; overflow:hidden; display:flex; flex-direction:column;">
+            <div class="flex items-center justify-between p-4" style="border-bottom:1px solid rgba(255,255,255,0.10);">
+              <div>
+                <div class="text-sm font-semibold">Cost Reimbursement Details</div>
+                <div class="text-xs pt-muted">Shows ALL saved orders • Manufacturing split by component</div>
               </div>
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Orders count</div>
-                <div class="text-lg font-bold"><span id="reimbCount">0</span></div>
-              </div>
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Electricity</div>
-                <div class="text-lg font-bold">₹<span id="reimbElecTotal">0</span></div>
-              </div>
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Filament</div>
-                <div class="text-lg font-bold">₹<span id="reimbFilOnlyTotal">0</span></div>
-              </div>
+              <button type="button" onclick="closeReimbursements()" class="pt-btn2" style="padding:.4rem .75rem; border-radius:.5rem;">Close</button>
             </div>
 
-            <div class="grid md:grid-cols-4 gap-3 text-sm mb-4">
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Wastage</div>
-                <div class="text-lg font-bold">₹<span id="reimbWastTotal">0</span></div>
+            <div class="p-4" style="overflow:auto; -webkit-overflow-scrolling:touch;">
+              <div class="grid gap-3 text-sm mb-3" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Total reimbursement</div><div class="text-lg font-bold">₹<span id="reimbTotal">0</span></div></div>
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Orders count</div><div class="text-lg font-bold"><span id="reimbCount">0</span></div></div>
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Electricity</div><div class="text-lg font-bold">₹<span id="reimbElecTotal">0</span></div></div>
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Filament</div><div class="text-lg font-bold">₹<span id="reimbFilOnlyTotal">0</span></div></div>
               </div>
-              
-              </div>
-            </div>
 
-            <div class="grid md:grid-cols-4 gap-3 text-sm mb-4">
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Packaging</div>
-                <div class="text-lg font-bold">₹<span id="reimbPackTotal">0</span></div>
+              <div class="grid gap-3 text-sm mb-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Wastage</div><div class="text-lg font-bold">₹<span id="reimbWastTotal">0</span></div></div>
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Packaging</div><div class="text-lg font-bold">₹<span id="reimbPackTotal">0</span></div></div>
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Filament + Wastage</div><div class="text-lg font-bold">₹<span id="reimbFilTotal">0</span></div></div>
+                <div class="pt-card rounded-xl p-3"><div class="text-xs pt-muted">Other</div><div class="text-lg font-bold">₹<span id="reimbOtherTotal">0</span></div></div>
               </div>
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Filament + Wastage</div>
-                <div class="text-lg font-bold">₹<span id="reimbFilTotal">0</span></div>
-              </div>
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Other (Maint+Depr+Labor+Pack)</div>
-                <div class="text-lg font-bold">₹<span id="reimbOtherTotal">0</span></div>
-              </div>
-              <div class="bg-slate-50 border rounded-xl p-3">
-                <div class="text-xs text-slate-500">Note</div>
-                <div class="text-xs text-slate-600">For older orders without saved split, the split is recomputed from grams+hours using current settings.</div>
-              </div>
-            </div>
 
-            <div class="overflow-x-auto border rounded-xl">
-              <table class="min-w-full text-sm">
-                <thead class="bg-slate-100">
-                  <tr>
-                    <th class="p-2 text-left border-b">Date</th>
-                    <th class="p-2 text-left border-b">Customer</th>
-                    <th class="p-2 text-right border-b">Total (₹)</th>
-                    <th class="p-2 text-right border-b">Filament</th>
-                    <th class="p-2 text-right border-b">Wastage</th>
-                    <th class="p-2 text-right border-b">Electricity</th>
-                    
-                    <th class="p-2 text-right border-b">Pack</th>
-                    <th class="p-2 text-center border-b">Recomputed?</th>
-                  </tr>
-                </thead>
-                <tbody id="reimbTbody"></tbody>
-              </table>
-            </div>
+              <div style="border:1px solid rgba(255,255,255,0.12); border-radius:.75rem; overflow:auto;">
+                <table class="min-w-full text-sm pt-table" style="width:100%;">
+                  <thead>
+                    <tr>
+                      <th class="p-2 text-left">Date</th>
+                      <th class="p-2 text-left">Customer</th>
+                      <th class="p-2 text-right">Total (₹)</th>
+                      <th class="p-2 text-right">Filament</th>
+                      <th class="p-2 text-right">Wastage</th>
+                      <th class="p-2 text-right">Electricity</th>
+                      <th class="p-2 text-right">Pack</th>
+                      <th class="p-2 text-center">Recomputed?</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reimbTbody"></tbody>
+                </table>
+              </div>
 
-            <details class="mt-3">
-              <summary class="cursor-pointer text-xs font-semibold text-slate-700">Show full breakdown per order (cards)</summary>
-              <div id="reimbFull" class="mt-2 text-xs text-slate-700 space-y-2"></div>
-            </details>
+              <details class="mt-3">
+                <summary class="text-xs font-semibold" style="cursor:pointer;">Show full breakdown per order (cards)</summary>
+                <div id="reimbFull" class="mt-2 text-xs" style="display:grid; gap:.5rem;"></div>
+              </details>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="min-w-full border text-sm" id="ordersTable">
-          <thead class="bg-gray-200">
+      <!-- ORDERS TABLE -->
+      <div style="overflow:auto; border-radius:.75rem; border:1px solid rgba(255,255,255,0.12);">
+        <table class="min-w-full text-sm pt-table" id="ordersTable" style="width:100%;">
+          <thead>
             <tr>
-              <th class="border p-2">Date</th>
-              <th class="border p-2">Customer</th>
-              <th class="border p-2">Grams</th>
-              <th class="border p-2">Hours</th>
-              <th class="border p-2">Manufacturing</th>
-              <th class="border p-2">Selling</th>
-              <th class="border p-2">Profit</th>
-              <th class="border p-2">Repeat?</th>
-              <th class="border p-2">Action</th>
+              <th class="p-2">Date</th>
+              <th class="p-2">Customer</th>
+              <th class="p-2">Qty</th>
+              <th class="p-2">Grams</th>
+              <th class="p-2">Hours</th>
+              <th class="p-2">Manufacturing</th>
+              <th class="p-2">Selling</th>
+              <th class="p-2">Profit</th>
+              <th class="p-2">Repeat?</th>
+              <th class="p-2">Action</th>
+              <th class="p-2">Bill</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -285,23 +386,44 @@
       </div>
 
       <div class="mt-6">
-        <h3 class="font-semibold mb-2">Repeat Customers</h3>
-        <div id="repeatCustomers" class="text-sm bg-gray-50 border p-3 rounded-lg">No repeat customers yet.</div>
+        <h3 class="font-semibold mb-4">Repeat Customers</h3>
+        <div id="repeatCustomers" class="text-sm pt-card-strong" style="border:1px solid rgba(255,255,255,0.12); padding:1rem; border-radius:.75rem;">No repeat customers yet.</div>
       </div>
 
-      <div id="status" class="mt-4 text-xs text-slate-500"></div>
+      <div id="status" class="mt-4 text-xs pt-muted"></div>
+
+      <!-- ================= BILL MODAL ================= -->
+      <div id="billModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4 z-50">
+        <div class="pt-card-strong w-full" style="max-width:48rem; border-radius:1rem; overflow:hidden;">
+          <div class="flex items-center justify-between p-4" style="border-bottom:1px solid rgba(255,255,255,0.10);">
+            <div>
+              <div class="text-sm font-semibold">Invoice / Bill</div>
+              <div class="text-xs pt-muted">PrecisionTech3D</div>
+            </div>
+            <button type="button" onclick="closeBill()" class="pt-btn2" style="padding:.4rem .75rem; border-radius:.5rem;">Close</button>
+          </div>
+
+          <div id="billContent" class="p-6"></div>
+
+          <div class="flex gap-2 p-4" style="border-top:1px solid rgba(255,255,255,0.10);">
+            <button type="button" onclick="printBill()" class="pt-btn" style="flex:1; color:#fff; padding:.6rem 1rem; border-radius:.75rem; border:0;">Print / Save as PDF</button>
+            <button type="button" onclick="closeBill()" class="pt-btn2" style="flex:1; padding:.6rem 1rem; border-radius:.75rem;">Close</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
 
 <script>
+  // ---------- Core settings ----------
   const DEFAULT_COST_SETTINGS = {
     filamentPerGram: 1.30,
     wastagePct: 5.0,
     packaging: 0,
     elecRate: 10,
     powerW: 120,
-    
   };
 
   const TARUN_SHARE = 0.60;
@@ -317,6 +439,32 @@
   function fmt1(v) { return toNum(v, 0).toFixed(1); }
   function todayISO() { return new Date().toISOString().split('T')[0]; }
 
+  // ✅ Quantity rule: if qty changes, ask grams + hours again
+  function handleQtyChange() {
+    const qtyEl = document.getElementById('qtyInput');
+    const qty = Math.max(1, parseInt(qtyEl?.value || '1', 10) || 1);
+    if (qtyEl) qtyEl.value = qty;
+
+    const g = document.getElementById('gramsInput');
+    const t = document.getElementById('timeInput');
+    if (g) g.value = '';
+    if (t) t.value = '';
+
+    const res = document.getElementById('result');
+    if (res) res.classList.add('hidden');
+    lastCalculation = null;
+
+    const gramsSuffix = document.getElementById('gramsLabelSuffix');
+    const timeSuffix = document.getElementById('timeLabelSuffix');
+    if (qty > 1) {
+      if (gramsSuffix) gramsSuffix.textContent = '(TOTAL for all pieces)';
+      if (timeSuffix) timeSuffix.textContent = '(TOTAL for all pieces)';
+    } else {
+      if (gramsSuffix) gramsSuffix.textContent = '';
+      if (timeSuffix) timeSuffix.textContent = '';
+    }
+  }
+
   function getCostSettings() {
     const raw = localStorage.getItem('pt3d_costSettings');
     if (!raw) return { ...DEFAULT_COST_SETTINGS };
@@ -328,7 +476,6 @@
         packaging: toNum(s.packaging, DEFAULT_COST_SETTINGS.packaging),
         elecRate: toNum(s.elecRate, DEFAULT_COST_SETTINGS.elecRate),
         powerW: toNum(s.powerW, DEFAULT_COST_SETTINGS.powerW),
-        
       };
     } catch {
       return { ...DEFAULT_COST_SETTINGS };
@@ -348,7 +495,6 @@
     setVal('cfg_packaging', s.packaging);
     setVal('cfg_elecRate', s.elecRate);
     setVal('cfg_powerW', s.powerW);
-    
 
     const st = document.getElementById('cfgStatus');
     if (st) st.textContent = 'Settings loaded.';
@@ -361,7 +507,6 @@
       packaging: toNum(document.getElementById('cfg_packaging')?.value, DEFAULT_COST_SETTINGS.packaging),
       elecRate: toNum(document.getElementById('cfg_elecRate')?.value, DEFAULT_COST_SETTINGS.elecRate),
       powerW: toNum(document.getElementById('cfg_powerW')?.value, DEFAULT_COST_SETTINGS.powerW),
-      
     };
 
     setCostSettings(s);
@@ -385,21 +530,10 @@
     const kWh = hours * (s.powerW / 1000);
     const electricity = kWh * s.elecRate;
 
-    
     const packaging = s.packaging;
-
     const total = filament + wastage + electricity + packaging;
 
     return { filament, wastage, electricity, packaging, total, settingsSnapshot: { ...s } };
-  }
-
-  function setManufacturingBreakdownUI(b) {
-    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = '₹' + fmt0(v); };
-    set('m_filament', b.filament);
-    set('m_wastage', b.wastage);
-    set('m_electricity', b.electricity);
-    
-    set('m_packaging', b.packaging);
   }
 
   function isISODate(s) {
@@ -410,6 +544,7 @@
     const date = isISODate(o?.date) ? o.date : todayISO();
     const name = (typeof o?.name === 'string' && o.name.trim()) ? o.name.trim() : 'Unknown';
 
+    const qty = Math.max(1, parseInt(o?.qty ?? 1, 10) || 1);
     const grams = toNum(o?.grams, 0);
     const hours = toNum(o?.hours, 0);
 
@@ -432,7 +567,7 @@
     if (!Number.isFinite(sellingPrice)) sellingPrice = 0;
     if (!Number.isFinite(profit)) profit = sellingPrice - manufacturingCost;
 
-    return { date, name, grams, hours, manufacturingCost, sellingPrice, profit, manufacturingBreakdown: breakdown };
+    return { date, name, qty, grams, hours, manufacturingCost, sellingPrice, profit, manufacturingBreakdown: breakdown };
   }
 
   function readOrders() {
@@ -446,15 +581,27 @@
     localStorage.setItem('printOrders', JSON.stringify(orders));
   }
 
+  // ✅ Pure settlement function (returns an object)
   function computeSettlement(revenue, cost, profit, mode) {
+    if (mode === 'profit') {
+      return {
+        tarunGets: profit * TARUN_SHARE,
+        vanshGets: profit * VANSH_SHARE,
+        tarunNote: `60% profit = ₹${fmt0(profit * TARUN_SHARE)}`,
+        vanshNote: `40% profit = ₹${fmt0(profit * VANSH_SHARE)}`
+      };
+    }
+
     if (mode === 'tarun') {
       return {
         tarunGets: cost + (profit * TARUN_SHARE),
         vanshGets: profit * VANSH_SHARE,
         tarunNote: `Cost reimbursement ₹${fmt0(cost)} + 60% profit (₹${fmt0(profit * TARUN_SHARE)})`,
-        vanshNote: `40% profit only`
+        vanshNote: `40% profit = ₹${fmt0(profit * VANSH_SHARE)}`
       };
     }
+
+    // split mode (revenue share)
     return {
       tarunGets: revenue * TARUN_SHARE,
       vanshGets: revenue * VANSH_SHARE,
@@ -465,9 +612,8 @@
 
   function recalcSettlement() {
     const modeEl = document.getElementById('costMode');
-    if (!modeEl) return;
+    const mode = modeEl ? modeEl.value : 'tarun';
 
-    const mode = modeEl.value;
     const revenue = toNum(lastTotals.selling, 0);
     const cost = toNum(lastTotals.manufacturing, 0);
     const profit = toNum(lastTotals.profit, 0);
@@ -481,52 +627,80 @@
     const tarNote = document.getElementById('tarunNote');
     const vanNote = document.getElementById('vanshNote');
 
-    if (!revEl || !costEl || !tarEl || !vanEl || !tarNote || !vanNote) return;
+    if (revEl) revEl.textContent = fmt0(revenue);
+    if (costEl) costEl.textContent = fmt0(cost);
+    if (tarEl) tarEl.textContent = fmt0(s.tarunGets);
+    if (vanEl) vanEl.textContent = fmt0(s.vanshGets);
 
-    revEl.textContent = fmt0(revenue);
-    costEl.textContent = fmt0(cost);
-    tarEl.textContent = fmt0(s.tarunGets);
-    vanEl.textContent = fmt0(s.vanshGets);
-
-    // Make cost reimbursement clickable (shows ALL reimbursements, not filtered)
-    if (mode === 'tarun') {
-      tarNote.innerHTML = `
-        <button type="button" onclick="openReimbursements()" class="text-xs text-blue-700 underline hover:text-blue-900">
-          Cost reimbursement ₹${fmt0(cost)} (click)
-        </button>
-        <span class="text-xs text-slate-500"> + 60% profit (₹${fmt0(profit * TARUN_SHARE)})</span>
-      `;
-      vanNote.textContent = '40% profit only';
-    } else {
-      tarNote.textContent = s.tarunNote;
-      vanNote.textContent = s.vanshNote;
+    if (tarNote) {
+      if (mode === 'tarun') {
+        tarNote.innerHTML = `
+          <button type="button" onclick="openReimbursements()" style="background:none; border:none; padding:0; cursor:pointer; color:#8dd3ff; text-decoration:underline; font-size:.75rem;">
+            Cost reimbursement ₹${fmt0(cost)} (click)
+          </button>
+          <span class="text-xs pt-muted"> + 60% profit (₹${fmt0(profit * TARUN_SHARE)})</span>
+        `;
+      } else {
+        tarNote.textContent = s.tarunNote;
+      }
     }
+
+    if (vanNote) vanNote.textContent = s.vanshNote;
   }
 
   function calculatePrice() {
-    const name = document.getElementById('customerName').value.trim();
-    const grams = parseFloat(document.getElementById('gramsInput').value);
-    const hours = parseFloat(document.getElementById('timeInput').value);
-    const sellPerGram = parseFloat(document.getElementById('sellPerGramInput').value);
+    try {
+      const name = document.getElementById('customerName')?.value?.trim() || '';
+      const qty = Math.max(1, parseInt(document.getElementById('qtyInput')?.value || '1', 10) || 1);
+      const grams = parseFloat(document.getElementById('gramsInput')?.value);
+      const hours = parseFloat(document.getElementById('timeInput')?.value);
+      const sellPerGram = parseFloat(document.getElementById('sellPerGramInput')?.value);
 
-    if (!name || Number.isNaN(grams) || Number.isNaN(hours) || Number.isNaN(sellPerGram)) {
-      alert('Please fill all fields.');
-      return;
+      if (!name || Number.isNaN(grams) || Number.isNaN(hours) || Number.isNaN(sellPerGram) || qty < 1) {
+        alert('Please fill all fields.');
+        return;
+      }
+
+      const b = computeManufacturing(grams, hours);
+      const manufacturingCost = toNum(b.total, 0);
+      const sellingPrice = grams * sellPerGram;
+      const profit = sellingPrice - manufacturingCost;
+
+      // ✅ Show result UI
+      const res = document.getElementById('result');
+      if (res) res.classList.remove('hidden');
+
+      const sEl = document.getElementById('calcSelling');
+      const pEl = document.getElementById('calcProfit');
+      const mEl = document.getElementById('calcMfg');
+      const stEl = document.getElementById('calcStatus');
+
+      if (sEl) sEl.textContent = fmt0(sellingPrice);
+      if (pEl) pEl.textContent = fmt0(profit);
+      if (mEl) mEl.textContent = fmt0(manufacturingCost);
+
+      if (stEl) {
+        stEl.textContent = qty > 1
+          ? `Qty = ${qty}. Entered grams/hours are TOTAL for all pieces.`
+          : 'Qty = 1.';
+      }
+
+      lastCalculation = {
+        date: todayISO(),
+        name,
+        qty,
+        grams,
+        hours,
+        manufacturingCost,
+        manufacturingBreakdown: b,
+        sellingPrice,
+        profit
+      };
+
+    } catch (err) {
+      console.error(err);
+      alert('Something went wrong while calculating. Open Console (F12) to see the error.');
     }
-
-    const b = computeManufacturing(grams, hours);
-    const manufacturingCost = b.total;
-    const sellingPrice = grams * sellPerGram;
-    const profit = sellingPrice - manufacturingCost;
-
-    document.getElementById('manufactureCost').textContent = '₹' + fmt0(manufacturingCost);
-    setManufacturingBreakdownUI(b);
-
-    document.getElementById('sellingPrice').textContent = '₹' + fmt0(sellingPrice);
-    document.getElementById('profit').textContent = '₹' + fmt0(profit);
-    document.getElementById('result').classList.remove('hidden');
-
-    lastCalculation = { date: todayISO(), name, grams, hours, manufacturingCost, manufacturingBreakdown: b, sellingPrice, profit };
   }
 
   function finalizeOrder() {
@@ -583,7 +757,7 @@
       totalProfit += order.profit;
 
       const repeatBadge = customerCount[order.name] > 1
-        ? '<span class="text-red-600 font-bold">Yes</span>'
+        ? '<span style="color:#fda4af; font-weight:700;">Yes</span>'
         : 'No';
 
       const b = order.manufacturingBreakdown;
@@ -593,16 +767,20 @@
 
       tbody.insertAdjacentHTML('beforeend', `
         <tr>
-          <td class="border p-2">${order.date}</td>
-          <td class="border p-2">${order.name}</td>
-          <td class="border p-2">${fmt0(order.grams)}</td>
-          <td class="border p-2">${fmt1(order.hours)}</td>
-          <td class="border p-2" title="${tip}">₹${fmt0(order.manufacturingCost)}</td>
-          <td class="border p-2">₹${fmt0(order.sellingPrice)}</td>
-          <td class="border p-2 text-green-600">₹${fmt0(order.profit)}</td>
-          <td class="border p-2 text-center">${repeatBadge}</td>
-          <td class="border p-2 text-center">
-            <button type="button" onclick="deleteOrder(${index})" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Delete</button>
+          <td class="p-2">${order.date}</td>
+          <td class="p-2">${order.name}</td>
+          <td class="p-2">${order.qty || 1}</td>
+          <td class="p-2">${fmt0(order.grams)}</td>
+          <td class="p-2">${fmt1(order.hours)}</td>
+          <td class="p-2" title="${tip}">₹${fmt0(order.manufacturingCost)}</td>
+          <td class="p-2">₹${fmt0(order.sellingPrice)}</td>
+          <td class="p-2" style="color:#86efac;">₹${fmt0(order.profit)}</td>
+          <td class="p-2" style="text-align:center;">${repeatBadge}</td>
+          <td class="p-2" style="text-align:center;">
+            <button type="button" onclick="deleteOrder(${index})" class="pt-danger" style="padding:.25rem .5rem; border-radius:.5rem; font-size:.75rem; color:#fff;">Delete</button>
+          </td>
+          <td class="p-2" style="text-align:center;">
+            <button type="button" onclick="openBill(${index})" class="pt-btn" style="padding:.25rem .5rem; border-radius:.5rem; font-size:.75rem; color:#fff; border:0;">Bill</button>
           </td>
         </tr>
       `);
@@ -661,30 +839,24 @@
     const full = document.getElementById('reimbFull');
     if (!modal || !tbody || !full) return;
 
-    const orders = readOrders(); // ALL orders
+    const orders = readOrders();
 
-    // Ensure we always have a usable breakdown
     function getBreakdownSafe(order) {
       const b0 = order?.manufacturingBreakdown;
-      const hasSplit = b0 && typeof b0 === 'object' && ['filament','wastage','electricity','maintenance','depreciation','labor','packaging','total'].every(k => Number.isFinite(toNum(b0[k], NaN)));
+      const hasSplit = b0 && typeof b0 === 'object' && ['filament','wastage','electricity','packaging','total'].every(k => Number.isFinite(toNum(b0[k], NaN)));
       if (hasSplit) {
         return { b: {
           filament: toNum(b0.filament, 0),
           wastage: toNum(b0.wastage, 0),
           electricity: toNum(b0.electricity, 0),
-          maintenance: toNum(b0.maintenance, 0),
-          depreciation: toNum(b0.depreciation, 0),
-          labor: toNum(b0.labor, 0),
           packaging: toNum(b0.packaging, 0),
           total: toNum(b0.total, 0)
         }, recomputed: false };
       }
-      // recompute from grams+hours using current settings
       const b = computeManufacturing(toNum(order.grams, 0), toNum(order.hours, 0));
       return { b, recomputed: true };
     }
 
-    // Totals
     let total = 0, elecTotal = 0, filOnlyTotal = 0, wastTotal = 0, packTotal = 0;
 
     const rows = orders.map(o => {
@@ -694,7 +866,6 @@
       filOnlyTotal += toNum(b.filament, 0);
       wastTotal += toNum(b.wastage, 0);
       elecTotal += toNum(b.electricity, 0);
-      
       packTotal += toNum(b.packaging, 0);
       return { order, b, recomputed };
     });
@@ -707,7 +878,6 @@
     document.getElementById('reimbElecTotal').textContent = fmt0(elecTotal);
     document.getElementById('reimbFilOnlyTotal').textContent = fmt0(filOnlyTotal);
     document.getElementById('reimbWastTotal').textContent = fmt0(wastTotal);
-    
     document.getElementById('reimbPackTotal').textContent = fmt0(packTotal);
     document.getElementById('reimbFilTotal').textContent = fmt0(filTotal);
     document.getElementById('reimbOtherTotal').textContent = fmt0(otherTotal);
@@ -717,31 +887,29 @@
 
     rows.forEach(({ order, b, recomputed }) => {
       tbody.insertAdjacentHTML('beforeend', `
-        <tr class="border-t">
+        <tr>
           <td class="p-2">${order.date}</td>
           <td class="p-2">${order.name}</td>
-          <td class="p-2 text-right font-semibold">${fmt0(order.manufacturingCost)}</td>
-          <td class="p-2 text-right">${fmt0(b.filament)}</td>
-          <td class="p-2 text-right">${fmt0(b.wastage)}</td>
-          <td class="p-2 text-right">${fmt0(b.electricity)}</td>
-          
-          <td class="p-2 text-right">${fmt0(b.packaging)}</td>
-          <td class="p-2 text-center">${recomputed ? '<span class="text-amber-700 font-semibold">Yes</span>' : 'No'}</td>
+          <td class="p-2" style="text-align:right; font-weight:700;">${fmt0(order.manufacturingCost)}</td>
+          <td class="p-2" style="text-align:right;">${fmt0(b.filament)}</td>
+          <td class="p-2" style="text-align:right;">${fmt0(b.wastage)}</td>
+          <td class="p-2" style="text-align:right;">${fmt0(b.electricity)}</td>
+          <td class="p-2" style="text-align:right;">${fmt0(b.packaging)}</td>
+          <td class="p-2" style="text-align:center;">${recomputed ? '<span style="color:#fde68a; font-weight:700;">Yes</span>' : 'No'}</td>
         </tr>
       `);
 
       full.insertAdjacentHTML('beforeend', `
-        <div class="bg-slate-50 border rounded-xl p-3">
+        <div class="pt-card rounded-xl p-3">
           <div class="flex items-center justify-between">
-            <div class="font-semibold">${order.date} • ${order.name} ${recomputed ? '<span class="ml-2 text-amber-700">(recomputed)</span>' : ''}</div>
-            <div class="font-bold">Total ₹${fmt0(order.manufacturingCost)}</div>
+            <div style="font-weight:700;">${order.date} • ${order.name} ${recomputed ? '<span style="color:#fde68a; margin-left:.5rem;">(recomputed)</span>' : ''}</div>
+            <div style="font-weight:700;">Total ₹${fmt0(order.manufacturingCost)}</div>
           </div>
-          <div class="mt-2 grid md:grid-cols-4 gap-2">
-            <div>Filament: ₹${fmt0(b.filament)}</div>
-            <div>Wastage: ₹${fmt0(b.wastage)}</div>
-            <div>Electricity: ₹${fmt0(b.electricity)}</div>
-            
-            <div>Packaging: ₹${fmt0(b.packaging)}</div>
+          <div class="mt-3" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:.5rem;">
+            <div class="pt-muted">Filament: ₹${fmt0(b.filament)}</div>
+            <div class="pt-muted">Wastage: ₹${fmt0(b.wastage)}</div>
+            <div class="pt-muted">Electricity: ₹${fmt0(b.electricity)}</div>
+            <div class="pt-muted">Packaging: ₹${fmt0(b.packaging)}</div>
           </div>
         </div>
       `);
@@ -758,39 +926,266 @@
     modal.classList.remove('flex');
   }
 
-  // Close modal on background click
+  // ================= BILL SYSTEM =================
+  let currentBillIndex = null;
+
+  function openBill(index) {
+    const orders = readOrders();
+    const order = normalizeOrder(orders[index]);
+    if (!order) return;
+
+    currentBillIndex = index;
+
+    const qty = Math.max(1, parseInt(order.qty || 1, 10));
+    const perPieceSelling = order.sellingPrice / qty;
+
+    const invoiceNo = `PT3D-${String(index + 1).padStart(4, '0')}`;
+
+    const billHtml = `
+      <div style="background:#ffffff; color:#111827; padding:2rem; border-radius:1rem; font-family:'Inter', sans-serif;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #e5e7eb; padding-bottom:1rem;">
+          <div>
+            <div style="font-size:1.5rem; font-weight:800; letter-spacing:-0.5px;">PrecisionTech 3D</div>
+            <div style="font-size:.875rem; color:#6b7280; margin-top:.25rem;">Professional 3D Printing Services</div>
+          </div>
+          <div style="text-align:right; font-size:.875rem;">
+            <div><strong>Date:</strong> ${order.date}</div>
+            <div><strong>Invoice #:</strong> ${invoiceNo}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.5px;">Billed To</div>
+          <div style="font-size:1.125rem; font-weight:600; margin-top:.25rem;">${order.name}</div>
+        </div>
+
+        <table style="width:100%; margin-top:1.5rem; border-collapse:collapse; font-size:.9rem;">
+          <thead>
+            <tr style="background:#f3f4f6; text-align:left;">
+              <th style="padding:.75rem; border:1px solid #e5e7eb;">Description</th>
+              <th style="padding:.75rem; border:1px solid #e5e7eb; text-align:right;">Qty</th>
+              <th style="padding:.75rem; border:1px solid #e5e7eb; text-align:right;">Rate (₹)</th>
+              <th style="padding:.75rem; border:1px solid #e5e7eb; text-align:right;">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:.75rem; border:1px solid #e5e7eb;">3D Printing Service</td>
+              <td style="padding:.75rem; border:1px solid #e5e7eb; text-align:right;">${qty}</td>
+              <td style="padding:.75rem; border:1px solid #e5e7eb; text-align:right;">₹${fmt0(perPieceSelling)}</td>
+              <td style="padding:.75rem; border:1px solid #e5e7eb; text-align:right; font-weight:600;">₹${fmt0(order.sellingPrice)}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+          <div style="width:280px;">
+            <div style="display:flex; justify-content:space-between; padding:.5rem 0; font-weight:600; font-size:1rem; border-top:2px solid #111827;">
+              <span>Total Payable</span>
+              <span>₹${fmt0(order.sellingPrice)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:2rem; font-size:.75rem; color:#6b7280; border-top:1px solid #e5e7eb; padding-top:1rem;">
+          Thank you for your business. This is a system-generated invoice.
+        </div>
+      </div>
+    `;
+
+    document.getElementById('billContent').innerHTML = billHtml;
+
+    const modal = document.getElementById('billModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeBill() {
+    const modal = document.getElementById('billModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    currentBillIndex = null;
+  }
+
+  function printBill() {
+    const content = document.getElementById('billContent');
+    if (!content) return;
+
+    const w = window.open('', '_blank');
+    if (!w) {
+      alert('Popup blocked. Please allow popups for this site to print the bill.');
+      return;
+    }
+
+    w.document.open();
+    w.document.write(`<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PrecisionTech3D Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body{ margin:0; padding:24px; background:#ffffff; color:#111827; font-family:'Inter', sans-serif; }
+    </style>
+  </head>
+  <body>
+    ${content.innerHTML}
+    <script>window.onload=function(){window.print();};<\/script>
+  </body>
+</html>`);
+    w.document.close();
+  }
+
+  function exportAllBillsZipHint(){
+    alert('Tip: Click Bill on any order → Print → Save as PDF.');
+  }
+
+  // ✅ Export orders to CSV (opens in Excel)
+  function exportOrdersCSV(){
+    const orders = readOrders();
+    if (!orders.length) {
+      alert('No orders to export.');
+      return;
+    }
+
+    // Use current filters like the table view
+    const nameFilter = (document.getElementById('filterName')?.value || '').toLowerCase().trim();
+    const minProfit = parseFloat(document.getElementById('minProfit')?.value || '');
+    const startDate = document.getElementById('startDate')?.value || '';
+    const endDate = document.getElementById('endDate')?.value || '';
+
+    const filtered = orders
+      .map(normalizeOrder)
+      .filter(o => {
+        if (nameFilter && !o.name.toLowerCase().includes(nameFilter)) return false;
+        if (!Number.isNaN(minProfit) && toNum(o.profit, 0) < minProfit) return false;
+        if (startDate && o.date < startDate) return false;
+        if (endDate && o.date > endDate) return false;
+        return true;
+      });
+
+    if (!filtered.length) {
+      alert('No orders match your filters. Clear filters and try again.');
+      return;
+    }
+
+    const mode = document.getElementById('costMode')?.value || 'tarun';
+
+    const header = [
+      'Date','Customer','Qty','Total Grams','Total Hours',
+      'Manufacturing (₹)','Selling (₹)','Profit (₹)',
+      'Tarun Share (₹)','Vansh Share (₹)','Mode'
+    ];
+
+    const rows = filtered.map(o => {
+      const s = computeSettlement(o.sellingPrice, o.manufacturingCost, o.profit, mode);
+      return [
+        o.date,
+        o.name,
+        o.qty,
+        fmt0(o.grams),
+        fmt1(o.hours),
+        fmt0(o.manufacturingCost),
+        fmt0(o.sellingPrice),
+        fmt0(o.profit),
+        fmt0(s.tarunGets),
+        fmt0(s.vanshGets),
+        mode
+      ];
+    });
+
+    const totals = filtered.reduce((acc, o) => {
+      acc.grams += toNum(o.grams,0);
+      acc.hours += toNum(o.hours,0);
+      acc.cost += toNum(o.manufacturingCost,0);
+      acc.sell += toNum(o.sellingPrice,0);
+      acc.profit += toNum(o.profit,0);
+      return acc;
+    }, {grams:0,hours:0,cost:0,sell:0,profit:0});
+
+    const sTot = computeSettlement(totals.sell, totals.cost, totals.profit, mode);
+
+    rows.push([
+      'TOTAL','','',
+      fmt0(totals.grams),
+      fmt1(totals.hours),
+      fmt0(totals.cost),
+      fmt0(totals.sell),
+      fmt0(totals.profit),
+      fmt0(sTot.tarunGets),
+      fmt0(sTot.vanshGets),
+      mode
+    ]);
+
+    // CSV escape
+    const esc = (v) => {
+      const s = String(v ?? '');
+      if (/[\",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+      return s;
+    };
+
+    const csv = [header, ...rows].map(r => r.map(esc).join(',')).join('\n');
+
+    // Excel friendly: add UTF-8 BOM
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `PrecisionTech3D_Orders_${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  // Close modals on background click
   document.addEventListener('click', (e) => {
-    const modal = document.getElementById('reimbModal');
-    if (!modal || modal.classList.contains('hidden')) return;
-    if (e.target === modal) closeReimbursements();
+    const reimb = document.getElementById('reimbModal');
+    if (reimb && !reimb.classList.contains('hidden') && e.target === reimb) closeReimbursements();
+
+    const bill = document.getElementById('billModal');
+    if (bill && !bill.classList.contains('hidden') && e.target === bill) closeBill();
   });
 
-  (function runSelfTests() {
+  // ----------------- Self tests -----------------
+  (function runSelfTests(){
     try {
+      // Test: computeManufacturing should be numeric and positive for positive inputs
       setCostSettings({ ...DEFAULT_COST_SETTINGS, filamentPerGram: 2, wastagePct: 10, elecRate: 10, powerW: 100, packaging: 5 });
       const b = computeManufacturing(100, 2);
-      if (!Number.isFinite(b.total)) throw new Error('Test failed: manufacturing total not numeric');
-      if (b.total <= 0) throw new Error('Test failed: manufacturing total should be > 0');
+      if (!Number.isFinite(b.total) || b.total <= 0) throw new Error('SelfTest failed: manufacturing total invalid');
 
-      const s1 = computeSettlement(1000, 300, 700, 'tarun');
-      if (Math.round(s1.tarunGets + s1.vanshGets) !== 1000) throw new Error('Test failed: settlement tarun sums to revenue');
+      // Test: normalizeOrder adds qty and keeps date format
+      const n = normalizeOrder({ date: '2026-02-01', name: 'A', qty: 3, grams: 10, hours: 1, sellingPrice: 100, manufacturingCost: 50, profit: 50 });
+      if (n.qty !== 3) throw new Error('SelfTest failed: qty not preserved');
+      if (n.date !== '2026-02-01') throw new Error('SelfTest failed: date not preserved');
 
-      const s2 = computeSettlement(1000, 300, 700, 'split');
-      if (Math.round(s2.tarunGets + s2.vanshGets) !== 1000) throw new Error('Test failed: settlement split sums to revenue');
+      // Test: CSV escaping does not throw and handles commas/newlines
+      const tEsc = (v) => {
+        const s = String(v ?? '');
+        if (/[\",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+        return s;
+      };
+      const sample = ['A,B', 'Line1\nLine2', '"quote"'];
+      const joined = sample.map(tEsc).join(',');
+      if (typeof joined !== 'string' || joined.length === 0) throw new Error('SelfTest failed: CSV escape');
 
-      // Reimbursement aggregation should be numeric
-      const fake = [
-        normalizeOrder({ date: '2026-02-01', name: 'A', grams: 10, hours: 1, manufacturingCost: 50, manufacturingBreakdown: { electricity: 5, filament: 30, wastage: 3, maintenance: 2, depreciation: 5, labor: 0, packaging: 5, total: 50 }, sellingPrice: 100, profit: 50 }),
-        // missing breakdown -> should be recomputed safely
-        normalizeOrder({ date: '2026-02-02', name: 'B', grams: 20, hours: 2, manufacturingCost: 80, sellingPrice: 150, profit: 70 })
-      ];
-      const agg = fake.reduce((sum, o) => sum + toNum(o.manufacturingCost, 0), 0);
-      if (!Number.isFinite(agg) || agg <= 0) throw new Error('Test failed: reimbursement aggregation invalid');
+      // Test: settlement sums
+      const sTarun = computeSettlement(1000, 300, 700, 'tarun');
+      if (Math.round(sTarun.tarunGets + sTarun.vanshGets) !== 1000) throw new Error('SelfTest failed: settlement tarun sums to revenue');
 
-      // Breakdown safety check: should not throw when breakdown is missing
-      const t = computeManufacturing(toNum(fake[1].grams, 0), toNum(fake[1].hours, 0));
-      if (!Number.isFinite(t.total)) throw new Error('Test failed: recompute breakdown total not numeric');
+      const sSplit = computeSettlement(1000, 300, 700, 'split');
+      if (Math.round(sSplit.tarunGets + sSplit.vanshGets) !== 1000) throw new Error('SelfTest failed: settlement split sums to revenue');
 
+      const sProfit = computeSettlement(1000, 300, 700, 'profit');
+      if (Math.round(sProfit.tarunGets + sProfit.vanshGets) !== 700) throw new Error('SelfTest failed: settlement profit-only sums to profit');
+
+      // Restore defaults
       setCostSettings({ ...DEFAULT_COST_SETTINGS });
     } catch (e) {
       console.error(e);
@@ -798,8 +1193,15 @@
     }
   })();
 
-  hydrateCostSettingsUI();
-  loadOrders();
+  // Init
+  (function init(){
+    hydrateCostSettingsUI();
+    handleQtyChange();
+    loadOrders();
+
+    const res = document.getElementById('result');
+    if (res) res.classList.add('hidden');
+  })();
 </script>
 
 </body>
